@@ -25,12 +25,12 @@ namespace myWebServer::net::base
     public:
         bool started(){ return started_;};
         bool joined(){ return joined_;};
-        pid_t pid(){ return pid_;};
+        pid_t pid(){ return tid_;};
         std::string name()const { return name_;};
     private:
         std::thread thread_;
-        pid_t pid_;                 //进程id
-        std::thread::id tid_;       //线程id
+        pid_t tid_;                 //进程id
+        std::thread::id id_;       //线程id
         ThreadFunc func_;           //线程要执行的任务
         bool started_;              //用来标记是否执行过
         bool joined_;               //用来标记是否join过
