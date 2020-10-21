@@ -7,6 +7,7 @@
 #include <utility>
 #include <zconf.h>
 #include <syscall.h>
+#include <sys/prctl.h>
 
 pid_t gettid(){
         return static_cast<pid_t>(::syscall(SYS_gettid));
@@ -51,16 +52,17 @@ namespace myWebServer::net::base {
             CurrentThread::t_threadName = "finished";
         }
     };
-}
-
-
-namespace myWebServer::net::base{
     void* startThread(void* obj) {
         ThreadData* data = static_cast<ThreadData*>(obj);
         data->runInThread();
         delete data;
         return NULL;
     }
+}
+
+
+namespace myWebServer::net::base{
+
     int Thread::join() {
         assert(started_);
         assert(!joined_);
@@ -75,7 +77,17 @@ namespace myWebServer::net::base{
     void Thread::start() {
         assert(!started_);
         started_ = true;
-        thread_ = std::thread(func_);
+        ThreadData *data = new ThreadData(func_, name_, &tid_, &latch_);
+        try{
+            thread_ = std::thread(startThread, data);
+            started_ = false;
+            delete data;
+        }
+        catch(...){
+            latch_.wait();
+            assert(tid_ > 0);
+        }
+
 
     }
 
