@@ -26,7 +26,8 @@ namespace myWebServer::net::base::CurrentThread
         }
     }
 }
-namespace myWebServer::net::base {
+namespace myWebServer::net::base
+{
     //保存线程中的name和tid
     struct ThreadData {
         using ThreadFunc = Thread::ThreadFunc ;
@@ -61,8 +62,8 @@ namespace myWebServer::net::base {
 }
 
 
-namespace myWebServer::net::base{
-
+namespace myWebServer::net::base
+{
     int Thread::join() {
         assert(started_);
         assert(!joined_);
