@@ -49,7 +49,7 @@ namespace myWebServer::net::base
     {
         impl_.stream_<<" -- " <<impl_.basename_<<':'<<impl_.line_<<'\n';
         const LogStream::Buffer& buf(stream().buffer());
-        output(buf.data, buf.length());
+        output(buf.data(), buf.length());
     }
 
 }

@@ -65,6 +65,7 @@ namespace myWebServer::net::base
         using Buffer = FixedBuffer<KSmallBuffer>;
         LogStream(const LogStream&) = delete;
         const LogStream& operator= (const LogStream&) = delete;
+        LogStream() = default;
     public:
         LogStream& operator<<(bool v){
             buffer_.append(v?"1":"0",1);
