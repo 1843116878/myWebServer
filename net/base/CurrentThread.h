@@ -32,5 +32,4 @@ namespace CurrentThread
 
     inline const char* name() { return t_threadName; }
 }
-}
 #endif //MYWEBSERVER_CURRENTTHREAD_H

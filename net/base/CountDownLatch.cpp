@@ -14,7 +14,7 @@ void CountDownLatch::countDown() {
 
 void CountDownLatch::wait() {
     std::lock_guard<std::recursive_mutex> lockGuard(mutex_);
-    condition_.wait(mutex_, [](int count) { return count == 0; }(count_));
+    condition_.wait(mutex_, [this] { return count_ == 0; });
 }
 
 

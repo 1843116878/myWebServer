@@ -64,7 +64,7 @@ void AsyncLogging::threadFunc() {
         {
             std::lock_guard<std::mutex> lockGuard(mutex_);
             if(buffers_.empty())
-                cond_.wait(mutex_, std::chrono::seconds(flushInterval_));
+                cond_.wait_for(mutex_, std::chrono::seconds(flushInterval_));
             buffers_.push_back(currentBuffer_);
             currentBuffer_.reset();
             currentBuffer_ = std::move(newBuffer1);
