@@ -5,7 +5,7 @@
 #ifndef MYWEBSERVER_CURRENTTHREAD_H
 #define MYWEBSERVER_CURRENTTHREAD_H
 
-namespace myWebServer::net::base::CurrentThread
+namespace CurrentThread
 {
     extern __thread int t_cachedTid;
     extern __thread char t_tidString[32];

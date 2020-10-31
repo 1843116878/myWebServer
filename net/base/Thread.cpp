@@ -12,7 +12,7 @@
 pid_t gettid(){
         return static_cast<pid_t>(::syscall(SYS_gettid));
 };
-namespace myWebServer::net::base::CurrentThread
+namespace CurrentThread
 {
     __thread int t_cachedTid = 0;
     __thread char t_tidString[32];
@@ -26,73 +26,69 @@ namespace myWebServer::net::base::CurrentThread
         }
     }
 }
-namespace myWebServer::net::base
-{
-    //保存线程中的name和tid
-    struct ThreadData {
-        using ThreadFunc = Thread::ThreadFunc ;
-        ThreadFunc func_;
-        std::string name_;
-        pid_t *tid_;
-        CountDownLatch *latch_;
 
-        ThreadData(const ThreadFunc &func, const std::string &name, pid_t *tid,
-                   CountDownLatch *latch)
-                : func_(func), name_(name), tid_(tid), latch_(latch) {}
+//保存线程中的name和tid
+struct ThreadData {
+    using ThreadFunc = Thread::ThreadFunc;
+    ThreadFunc func_;
+    std::string name_;
+    pid_t *tid_;
+    CountDownLatch *latch_;
 
-        void runInThread() {
-            *tid_ = CurrentThread::tid();
-            tid_ = NULL;
-            latch_->countDown();
-            latch_ = NULL;
+    ThreadData(const ThreadFunc &func, const std::string &name, pid_t *tid,
+               CountDownLatch *latch)
+            : func_(func), name_(name), tid_(tid), latch_(latch) {}
 
-            CurrentThread::t_threadName = name_.empty() ? "Thread" : name_.c_str();
-            prctl(PR_SET_NAME, CurrentThread::t_threadName);
+    void runInThread() {
+        *tid_ = CurrentThread::tid();
+        tid_ = NULL;
+        latch_->countDown();
+        latch_ = NULL;
 
-            func_();
-            CurrentThread::t_threadName = "finished";
-        }
-    };
-    void* startThread(void* obj) {
-        ThreadData* data = static_cast<ThreadData*>(obj);
-        data->runInThread();
+        CurrentThread::t_threadName = name_.empty() ? "Thread" : name_.c_str();
+        prctl(PR_SET_NAME, CurrentThread::t_threadName);
+
+        func_();
+        CurrentThread::t_threadName = "finished";
+    }
+};
+
+void *startThread(void *obj) {
+    ThreadData *data = static_cast<ThreadData *>(obj);
+    data->runInThread();
+    delete data;
+    return NULL;
+}
+
+
+int Thread::join() {
+    assert(started_);
+    assert(!joined_);
+    if (thread_.joinable()) {
+        joined_ = true;
+        thread_.join();
+    } else
+        return -1;
+    return 0;
+}
+
+void Thread::start() {
+    assert(!started_);
+    started_ = true;
+    ThreadData *data = new ThreadData(func_, name_, &tid_, &latch_);
+    try {
+        thread_ = std::thread(startThread, data);
+        started_ = false;
         delete data;
-        return NULL;
     }
+    catch (...) {
+        latch_.wait();
+        assert(tid_ > 0);
+    }
+
+
 }
 
+Thread::Thread(const ThreadFunc &func, std::string name)
+        : thread_(), func_(func), name_(std::move(name)), id_(0), tid_(0), started_(false), joined_(false), latch_(1) {}
 
-namespace myWebServer::net::base
-{
-    int Thread::join() {
-        assert(started_);
-        assert(!joined_);
-        if(thread_.joinable()) {
-            joined_ = true;
-            thread_.join();
-        }
-        else
-            return -1;
-        return 0;
-    }
-    void Thread::start() {
-        assert(!started_);
-        started_ = true;
-        ThreadData *data = new ThreadData(func_, name_, &tid_, &latch_);
-        try{
-            thread_ = std::thread(startThread, data);
-            started_ = false;
-            delete data;
-        }
-        catch(...){
-            latch_.wait();
-            assert(tid_ > 0);
-        }
-
-
-    }
-
-    Thread::Thread(const ThreadFunc& func, std::string name)
-    : thread_(), func_(func), name_(std::move(name)), id_(0), tid_(0), started_(false), joined_(false), latch_(1)
-    {}
-}
