@@ -5,6 +5,7 @@
 #ifndef MYWEBSERVER_LOGSTREAM_H
 #define MYWEBSERVER_LOGSTREAM_H
 #include <cstring>
+#include <string>
 
 class AsyncLogging;
 
