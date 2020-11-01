@@ -25,9 +25,28 @@ public:
 private:
     bool deleted_;
     size_t expiredTime_;
-    std::shared_ptr<HttpData> SpHttpData;
+    std::shared_ptr<HttpData> SPHttpData;
 };
 
+struct TimerCmp{
+    bool operator()(std::shared_ptr<TimerNode> &a,
+            std::shared_ptr<TimerNode> &b)const{
+        return a->getExpTime() > b->getExpTime();
+    }
+};
+
+class TimerManager{
+public:
+    TimerManager();
+    ~TimerManager();
+    void addTimer(std::shared_ptr<HttpData> SPHttpData, int timeout);
+    void handleExpiredEvent();
+
+private:
+    using SPTimerNode = std::shared_ptr<TimerNode>;
+    std::priority_queue<SPTimerNode, std::deque<SPTimerNode>, TimerCmp>
+    timerNodeQueue;
+};
 
 
 
