@@ -9,9 +9,7 @@
 #include <syscall.h>
 #include <sys/prctl.h>
 
-pid_t gettid(){
-        return static_cast<pid_t>(::syscall(SYS_gettid));
-};
+
 namespace CurrentThread
 {
     __thread int t_cachedTid = 0;
@@ -26,7 +24,9 @@ namespace CurrentThread
         }
     }
 }
-
+pid_t gettid(){
+    return static_cast<pid_t>(::syscall(SYS_gettid));
+};
 //保存线程中的name和tid
 struct ThreadData {
     using ThreadFunc = Thread::ThreadFunc;
@@ -41,9 +41,9 @@ struct ThreadData {
 
     void runInThread() {
         *tid_ = CurrentThread::tid();
-        tid_ = NULL;
+        tid_ = nullptr;
         latch_->countDown();
-        latch_ = NULL;
+        latch_ = nullptr;
 
         CurrentThread::t_threadName = name_.empty() ? "Thread" : name_.c_str();
         prctl(PR_SET_NAME, CurrentThread::t_threadName);
@@ -53,11 +53,11 @@ struct ThreadData {
     }
 };
 
-void *startThread(void *obj) {
+void* startThread(void *obj) {
     ThreadData *data = static_cast<ThreadData *>(obj);
     data->runInThread();
     delete data;
-    return NULL;
+    return nullptr;
 }
 
 
@@ -76,19 +76,18 @@ void Thread::start() {
     assert(!started_);
     started_ = true;
     ThreadData *data = new ThreadData(func_, name_, &tid_, &latch_);
-    try {
-        thread_ = std::thread(startThread, data);
-        started_ = false;
-        delete data;
-    }
-    catch (...) {
-        latch_.wait();
-        assert(tid_ > 0);
-    }
-
-
+    thread_ = std::thread(startThread, data);
+    started_ = false;
+    delete data;
 }
 
 Thread::Thread(const ThreadFunc &func, std::string name)
         : thread_(), func_(func), name_(std::move(name)), id_(0), tid_(0), started_(false), joined_(false), latch_(1) {}
+
+void Thread::setDefaultName() {
+    if (name_.empty()){
+        char buf[32];
+        snprintf(buf, sizeof buf, "Thread");
+    }
+}
 
