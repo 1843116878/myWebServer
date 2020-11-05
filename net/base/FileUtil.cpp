@@ -6,7 +6,7 @@
 
 
 AppendFile::AppendFile(const std::string &filename)
-        : fp_(fopen(filename.c_str(), "ae")) {
+        : fp_(fopen(filename.c_str(), "a+")) {
     setbuffer(fp_, buf_, sizeof(buf_));
 }
 
@@ -14,7 +14,7 @@ AppendFile::~AppendFile() {
     fclose(fp_);
 }
 
-void AppendFile::fluse() {
+void AppendFile::flush() {
     fflush(fp_);
 }
 
@@ -25,7 +25,8 @@ void AppendFile::append(const char *logline, const size_t len) {
         size_t x = this->write(logline + n, remain);
         if (x == 0) {
             int err = ferror(fp_);
-            if (err) fprintf(stderr, "AppendFile::append() failed !\n");
+            if (err)
+                fprintf(stderr, "AppendFile::append() failed !\n");
             break;
         }
         n += x;
