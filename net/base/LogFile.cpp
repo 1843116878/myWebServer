@@ -23,7 +23,7 @@ void LogFile::append(const char *logline, int len) {
 
 void LogFile::flush() {
     std::lock_guard<std::mutex> lockGuard(mutex_);
-    file_->fluse();
+    file_->flush();
 }
 
 
@@ -32,7 +32,7 @@ void LogFile::append_unlocked(const char *logline, int len) {
     ++count_;
     if(count_ >= flushEveryN_){
         count_ = 0;
-        file_->fluse();
+        file_->flush();
     }
 }
 
