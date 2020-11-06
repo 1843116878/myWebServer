@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MYWEBSERVER_THREAD_H
+#define MYWEBSERVER_THREAD_H
 #include <pthread.h>
 #include <sys/syscall.h>
 #include <unistd.h>
@@ -30,3 +31,4 @@ private:
     std::string name_;
     CountDownLatch latch_;
 };
+#endif
