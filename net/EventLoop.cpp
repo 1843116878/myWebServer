@@ -37,8 +37,8 @@ EventLoop::EventLoop()
         t_loopInThisThread = this;
     }
     pwakeupChannel_->setEvents(EPOLLIN | EPOLLET);
-    pwakeupChannel_->setReadHandler(std::bind(&EventLoop::handleRead, this));
-    pwakeupChannel_->setConnHandler(std::bind(&EventLoop::handleConn, this));
+    pwakeupChannel_->setReadHandler([this] { handleRead(); });
+    pwakeupChannel_->setConnHandler([this] { handleConn(); });
     poller_->epoll_add(pwakeupChannel_, 0);
 }
 
@@ -73,50 +73,77 @@ void EventLoop::quit() {
 }
 
 void EventLoop::runInLoop(EventLoop::Functor &&cb) {
-
+    if(isInLoopThread())
+        cb();
+    else
+        queueInLoop(std::move(cb));
 }
 
 void EventLoop::queueInLoop(EventLoop::Functor &&cb) {
-
+    {
+        std::lock_guard<std::mutex> lockGuard(mutex_);
+        pendingFunctors.emplace_back(std::move(cb));
+    }
+    if(!isInLoopThread() || callingPendingFunctors_)
+        wakeup();
 }
 
 bool EventLoop::isInLoopThread() const {
-    return false;
+    return threadId_ == CurrentThread::tid();
 }
 
 void EventLoop::assertInLoopThread() {
-
+    assert(isInLoopThread());
 }
 
 void EventLoop::shutdown(std::shared_ptr<Channel> channel) {
-
+    shutDownWR(channel->getfd());
 }
 
 void EventLoop::removeFromPoller(std::shared_ptr<Channel> channel) {
-
+    poller_->epoll_del(channel);
 }
 
 void EventLoop::updatePoller(std::shared_ptr<Channel> channel, int timeout) {
-
+    poller_->epoll_mod(channel, timeout);
 }
 
 void EventLoop::addToPoller(std::shared_ptr<Channel> channel, int timeout) {
-
+    poller_->epoll_add(channel, timeout);
 }
 
 void EventLoop::wakeup() {
-
+    uint64_t one = 1;
+    ssize_t n = writen(wakeupFd_,(char *)(&one), sizeof one);
+    if(n != sizeof one){
+        LOG << "EventLoop::wakeup() writes " << n << " bytes instead of 8";
+    }
 }
 
 void EventLoop::handleRead() {
-
+    uint64_t one = 1;
+    ssize_t n = readn(wakeupFd_, &one, sizeof one);
+    if(n != sizeof one){
+        LOG << " EventLoop::handleRead() reads " << n << " bytes instead of 8 ";
+    }
+    pwakeupChannel_->setEvents(EPOLLIN | EPOLLET);
 }
 
 void EventLoop::doPendingFunctors() {
+    std::vector<Functor> functors;
+    callingPendingFunctors_ = true;
+    {
+        std::lock_guard<std::mutex> lockGuard(mutex_);
+        functors.swap(pendingFunctors);
+    }
+    for (auto & functor : functors){
+        functor();
+    }
+    callingPendingFunctors_ = false;
 
 }
 
 void EventLoop::handleConn() {
-
+    updatePoller(pwakeupChannel_, 0);
 }
 
