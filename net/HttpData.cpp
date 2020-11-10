@@ -478,7 +478,7 @@ HeaderState HttpData::parseHeaders() {
 
 AnalysisState HttpData::analysisRequest() {
     if (method_ == HttpMethod::METHOD_POST) {
-         ------------------------------------------------------
+
 
     } else if (method_ == HttpMethod::METHOD_GET || method_ == HttpMethod::METHOD_HEAD) {
         string header;
@@ -506,7 +506,7 @@ AnalysisState HttpData::analysisRequest() {
         if (fileName_ == "favicon.ico") {
             header += "Content-Type: image/png\r\n";
             header += "Content-Length: " + to_string(sizeof favicon) + "\r\n";
-            header += "Server: LinYa's Web Server\r\n";
+            header += "Server: yuanzhihong's Web Server\r\n";
 
             header += "\r\n";
             outBuffer_ += header;
@@ -523,7 +523,7 @@ AnalysisState HttpData::analysisRequest() {
         }
         header += "Content-Type: " + filetype + "\r\n";
         header += "Content-Length: " + to_string(sbuf.st_size) + "\r\n";
-        header += "Server: LinYa's Web Server\r\n";
+        header += "Server: yuanzhihong's Web Server\r\n";
         // 头部结束
         header += "\r\n";
         outBuffer_ += header;
@@ -560,13 +560,13 @@ void HttpData::handleError(int fd, int err_num, string short_msg) {
     body_buff += "<html><title>哎~出错了</title>";
     body_buff += "<body bgcolor=\"ffffff\">";
     body_buff += to_string(err_num) + short_msg;
-    body_buff += "<hr><em> LinYa's Web Server</em>\n</body></html>";
+    body_buff += "<hr><em> yuanzhihong's Web Server</em>\n</body></html>";
 
     header_buff += "HTTP/1.1 " + to_string(err_num) + short_msg + "\r\n";
     header_buff += "Content-Type: text/html\r\n";
     header_buff += "Connection: Close\r\n";
     header_buff += "Content-Length: " + to_string(body_buff.size()) + "\r\n";
-    header_buff += "Server: LinYa's Web Server\r\n";
+    header_buff += "Server: yuanzhihong's Web Server\r\n";
     ;
     header_buff += "\r\n";
     // 错误处理不考虑writen不完的情况
