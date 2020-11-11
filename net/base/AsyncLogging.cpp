@@ -13,7 +13,7 @@ AsyncLogging::AsyncLogging(const std::string logFileName_, int flushInterval)
         flushInterval_(flushInterval),
         running_(false),
         basename_(logFileName_),
-        thread_(std::bind(&AsyncLogging::threadFunc, this), "Logging"),
+        thread_([this] { threadFunc(); }, "Logging"),
         mutex_(),
         cond_(),
         latch_(1),
