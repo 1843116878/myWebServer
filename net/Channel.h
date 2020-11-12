@@ -26,7 +26,7 @@ public:
     void setfd(int fd);
 
     std::shared_ptr<HttpData> getHolder();
-    void setHolder(std::shared_ptr<HttpData> holder);
+    void setHolder(const std::shared_ptr<HttpData>& holder);
 
     void setRevents(__uint32_t ev);
     void setEvents(__uint32_t ev);

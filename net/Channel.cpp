@@ -5,11 +5,11 @@
 #include "Channel.h"
 
 Channel::Channel(EventLoop *loop)
-    :loop_(loop), events_(0), lastEvents(0), fd_(0)
+    :loop_(loop), fd_(0), events_(0), lastEvents(0)
 {}
 
 Channel::Channel(EventLoop *loop, int fd)
-    :loop_(loop), events_(0),lastEvents(0), fd_(fd)
+    :loop_(loop), fd_(fd), events_(0),lastEvents(0)
 {}
 
 Channel::~Channel()
@@ -28,7 +28,7 @@ std::shared_ptr<HttpData> Channel::getHolder() {
     return res;
 }
 
-void Channel::setHolder(std::shared_ptr<HttpData> holder) {
+void Channel::setHolder(const std::shared_ptr<HttpData>& holder) {
     holder_ = holder;
 }
 
