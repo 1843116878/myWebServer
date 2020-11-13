@@ -11,6 +11,8 @@ Server::Server(EventLoop *loop, int threadNum, int port)
     :loop_(loop),
     threadNum_(threadNum),
     eventLoopThreadPool_(std::make_unique<EventLoopThreadPool>(loop_, threadNum)),
+    started_(false),
+    acceptChannel_(std::make_shared<Channel>(loop_)),
     port_(port),
     listenFd_(socket_bind_listen(port_))
 {
