@@ -11,7 +11,7 @@
 #include "EventLoop.h"
 
 
-__thread EventLoop *t_loopInThisThread = 0;
+__thread EventLoop *t_loopInThisThread = nullptr;
 int createEventfd(){
     int evtfd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if(evtfd < 0){
@@ -20,19 +20,22 @@ int createEventfd(){
     }
     return evtfd;
 }
+
+
 EventLoop::EventLoop()
     :looping_(false),
-    poller_(std::make_shared<Epoll>()),
     wakeupFd_(createEventfd()),
-    pwakeupChannel_(std::make_shared<Channel>(this, wakeupFd_)),
     quit_(false),
     eventHandling_(false),
     callingPendingFunctors_(false),
-    threadId_(CurrentThread::tid()),
+    poller_(std::make_shared<Epoll>()),
+    pwakeupChannel_(std::make_shared<Channel>(this, wakeupFd_)),
+    mutex_(),
+    threadId_(CurrentThread::tid())
 {
     if(t_loopInThisThread){
-         LOG << "Another EventLoop " << t_loopInThisThread <<
-         " exists in this thread " << threadId_;
+//         LOG << "Another EventLoop " << t_loopInThisThread <<
+//         " exists in this thread " << threadId_;
     } else{
         t_loopInThisThread = this;
     }

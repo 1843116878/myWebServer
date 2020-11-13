@@ -40,12 +40,12 @@ private:
     void handleConn();
 
     bool looping_;
-    std::shared_ptr<Epoll> poller_;
-    std::shared_ptr<Channel> pwakeupChannel_;
     int wakeupFd_;
     bool quit_;
     bool eventHandling_;
     bool callingPendingFunctors_;
+    std::shared_ptr<Epoll> poller_;
+    std::shared_ptr<Channel> pwakeupChannel_;
     mutable std::mutex mutex_;
     std::vector<Functor> pendingFunctors;
     const pid_t threadId_;
