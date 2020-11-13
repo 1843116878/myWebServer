@@ -71,6 +71,7 @@ void Epoll::epoll_mod(SP_Channel request, int timeout) {
     }
 }
 
+//返回可以进行I/O事件的文件描述符集合
 std::vector<SP_Channel> Epoll::poll() {
     while (true){
         int event_num =
@@ -78,7 +79,8 @@ std::vector<SP_Channel> Epoll::poll() {
         if (event_num < 0)
             perror("epoll wait error");
         std::vector<SP_Channel> req_data = getEventsRequest(event_num);
-        if (req_data.size() > 0)    return req_data;
+        if (req_data.size() > 0)
+            return req_data;
     }
 }
 
@@ -98,6 +100,7 @@ std::vector<SP_Channel> Epoll::getEventsRequest(int events_num) {
         else
             LOG << "SP cur_req is invalid";
     }
+    return req_data;
 }
 
 void Epoll::add_timer(SP_Channel request_data, int timeout) {
