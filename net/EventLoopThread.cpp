@@ -39,7 +39,7 @@ EventLoopThread::~EventLoopThread() {
 EventLoopThread::EventLoopThread()
     :loop_(nullptr),
     exiting_(false),
-    thread_(std::bind(&EventLoopThread::threadFunc, this),"EventLoopThread"),
+    thread_([this] { threadFunc(); },"EventLoopThread"),
     mutex_(),
     cond_()
 {}
