@@ -1,5 +1,6 @@
-// @Author Lin Ya
-// @Email xxbbb@vip.qq.com
+//
+// Created by yuanzhihong on 2020/11/4.
+//
 #include "HttpData.h"
 #include <fcntl.h>
 #include <sys/mman.h>
