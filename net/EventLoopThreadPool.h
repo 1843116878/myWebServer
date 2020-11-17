@@ -1,6 +1,7 @@
 // Created by yuanzhihong
 //
-#pragma once
+#ifndef MYWEBSERVER_EVENTLOOPTHREADPOOL_H_
+#define MYWEBSERVER_EVENTLOOPTHREADPOOL_H_
 #include <memory>
 #include <vector>
 #include "EventLoopThread.h"
@@ -27,3 +28,5 @@ private:
     std::vector<std::shared_ptr<EventLoopThread>> threads_;
     std::vector<EventLoop *> loops_;
 };
+
+#endif
