@@ -1,6 +1,9 @@
 // Created by yuanzhihong
 //
-#pragma once
+#ifndef MYWEBSERVER_CHANNEL_H_
+#define MYWEBSERVER_CHANNEL_H_
+
+
 #include <sys/epoll.h>
 #include <sys/epoll.h>
 #include <functional>
@@ -68,3 +71,5 @@ private:
 };
 
 using SP_Channel = std::shared_ptr<Channel>;
+
+#endif
