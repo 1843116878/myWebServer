@@ -1,9 +1,8 @@
+// Created by yuanzhihong
 //
-// Created by yuanzhihong on 2020/10/21.
-//
+#ifndef MYWEBSERVER_UTIL_H_
+#define MYWEBSERVER_UTIL_H_
 
-#ifndef MYWEBSERVER_UTIL_H
-#define MYWEBSERVER_UTIL_H
 #include <cstdlib>
 #include <string>
 
@@ -19,5 +18,4 @@ void setSocketNoLinger(int fd);
 void shutDownWR(int fd);
 int socket_bind_listen(int port);
 
-
-#endif //MYWEBSERVER_UTIL_H
+#endif
