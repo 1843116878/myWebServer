@@ -1,45 +1,42 @@
+// Created by yuanzhihong
 //
-// Created by yuanzhihong on 2020/11/4.
-//
-#include <functional>
-#include <cassert>
-#include <mutex>
 #include "EventLoopThread.h"
 
-void EventLoopThread::threadFunc() {
-    EventLoop loop;
-    {
-        std::lock_guard<std::mutex> lockGuard(mutex_);
-        loop_ = &loop;
-        cond_.notify_one();
-    }
-    loop.loop();
-    loop_ = nullptr;
-}
-
-EventLoop *EventLoopThread::startLoop() {
-    assert(!thread_.started());
-    EventLoop loop;
-    {
-        std::lock_guard<std::mutex> lockGuard(mutex_);
-        while (loop_ == nullptr)
-            cond_.wait(mutex_);//一直等到threadFun在Thread中运行
-    }
-    return loop_;
-}
+EventLoopThread::EventLoopThread()
+    : loop_(nullptr),
+      thread_([this] { threadFunc(); }, "EventLoopThread"),
+      exiting_(false),
+      mutex_(),
+      cond_() {}
 
 EventLoopThread::~EventLoopThread() {
-    assert(!thread_.started());
-    if(loop_ != nullptr){
+    exiting_ = true;
+    if (loop_ != nullptr) {
         loop_->quit();
         thread_.join();
     }
 }
 
-EventLoopThread::EventLoopThread()
-    :loop_(nullptr),
-    exiting_(false),
-    thread_([this] { threadFunc(); },"EventLoopThread"),
-    mutex_(),
-    cond_()
-{}
+EventLoop* EventLoopThread::startLoop() {
+    assert(!thread_.started());
+    thread_.start();
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        // 一直等到threadFun在Thread里真正跑起来
+        while (loop_ == nullptr)
+            cond_.wait(mutex_);
+    }
+    return loop_;
+}
+
+void EventLoopThread::threadFunc() {
+    EventLoop loop;
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        loop_ = &loop;
+        cond_.notify_one();
+    }
+    loop.loop();
+    // assert(exiting_);
+    loop_ = nullptr;
+}
