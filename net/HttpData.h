@@ -1,7 +1,7 @@
+// Created by yuanzhihong
 //
-// Created by yuanzhihong on 2020/11/4.
-//
-#pragma once
+#ifndef MYWEBSERVER_HTTPDATA_H_
+#define MYWEBSERVER_HTTPDATA_H_
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <functional>
@@ -70,60 +70,66 @@ enum class HttpVersion {
     HTTP_11
 };
 
+//这是基于pthread_once的单例模式，见muduo或者陈硕大佬的博客
 class MimeType {
 private:
     static void init();
-    static std::unordered_map<std::string, std::string> mime;
     MimeType();
     MimeType(const MimeType &m);
-
 public:
     static std::string getMime(const std::string &suffix);
-
 private:
     static pthread_once_t once_control;
+    static std::unordered_map<std::string, std::string> mime;
 };
+
 
 class HttpData : public std::enable_shared_from_this<HttpData> {
 public:
     HttpData(EventLoop *loop, int connfd);
-    ~HttpData() { close(fd_); }
+    ~HttpData();
     void reset();
-    void seperateTimer();
-    void linkTimer(std::shared_ptr<TimerNode> mtimer) {
-        // shared_ptr重载了bool, 但weak_ptr没有
-        timer_ = mtimer;
-    }
-    std::shared_ptr<Channel> getChannel() { return channel_; }
-    EventLoop *getLoop() { return loop_; }
+
     void handleClose();
     void newEvent();
 
+    void seperateTimer();
+    void linkTimer(std::shared_ptr<TimerNode> mtimer);
+
+    std::shared_ptr<Channel> getChannel();
+    EventLoop *getLoop();
+
 private:
-    EventLoop *loop_;
-    std::shared_ptr<Channel> channel_;
-    int fd_;
-    std::string inBuffer_;
-    std::string outBuffer_;
-    bool error_;
-    ConnectionState connectionState_;
-
-    HttpMethod method_;
-    HttpVersion HTTPVersion_;
-    std::string fileName_;
-    std::string path_;
-    int nowReadPos_;
-    ProcessState state_;
-    ParseState hState_;
-    bool keepAlive_;
-    std::map<std::string, std::string> headers_;
-    std::weak_ptr<TimerNode> timer_;
-
     void handleRead();
     void handleWrite();
     void handleConn();
     void handleError(int fd, int err_num, std::string short_msg);
+
     URIState parseURI();
     HeaderState parseHeaders();
     AnalysisState analysisRequest();
+private:
+    EventLoop *loop_;
+    std::shared_ptr<Channel> channel_;
+    std::map<std::string, std::string> headers_;
+    std::weak_ptr<TimerNode> timer_;
+    int fd_;
+    std::string fileName_;
+    std::string path_;
+
+    //输入和输出缓冲区,使用的string
+    std::string inBuffer_;
+    std::string outBuffer_;
+    int nowReadPos_;
+
+    bool error_;
+    bool keepAlive_;
+
+    HttpMethod method_;
+    HttpVersion HTTPVersion_;
+    ProcessState state_;
+    ParseState hState_;
+    ConnectionState connectionState_;
 };
+
+#endif
