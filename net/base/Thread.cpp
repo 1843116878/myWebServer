@@ -42,9 +42,9 @@ struct ThreadData {
 
     void runInThread() {
         *tid_ = CurrentThread::tid();
-        tid_ = NULL;
+        tid_ = nullptr;
         latch_->countDown();
-        latch_ = NULL;
+        latch_ = nullptr;
 
         CurrentThread::t_threadName = name_.empty() ? "Thread" : name_.c_str();
         prctl(PR_SET_NAME, CurrentThread::t_threadName);
@@ -58,7 +58,7 @@ void* startThread(void* obj) {
     ThreadData* data = static_cast<ThreadData*>(obj);
     data->runInThread();
     delete data;
-    return NULL;
+    return nullptr;
 }
 
 Thread::Thread(const ThreadFunc& func, const std::string& n)

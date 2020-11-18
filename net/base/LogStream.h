@@ -87,37 +87,24 @@ public:
     }
 
     LogStream &operator<<(short);
-
     LogStream &operator<<(unsigned short);
-
     LogStream &operator<<(int);
-
     LogStream &operator<<(unsigned int);
-
     LogStream &operator<<(long);
-
     LogStream &operator<<(unsigned long);
-
     LogStream &operator<<(long long);
-
     LogStream &operator<<(unsigned long long);
-
     LogStream &operator<<(const void *);
-
     LogStream &operator<<(float v) {
         *this << static_cast<double>(v);
         return *this;
     }
-
     LogStream &operator<<(double);
-
     LogStream &operator<<(long double);
-
     LogStream &operator<<(char v) {
         buffer_.append(&v, 1);
         return *this;
     }
-
     LogStream &operator<<(const char *str) {
         if (str)
             buffer_.append(str, strlen(str));
@@ -125,28 +112,22 @@ public:
             buffer_.append("(null)", 6);
         return *this;
     }
-
     LogStream &operator<<(const unsigned char *str) {
         return operator<<(reinterpret_cast<const char *>(str));
     }
-
     LogStream &operator<<(const std::string &v) {
         buffer_.append(v.c_str(), v.size());
         return *this;
     }
-
     void append(const char *data, int len) {
         buffer_.append(data, len);
     }
-
     const Buffer &buffer() const {
         return buffer_;
     }
-
     void reserBuffer() {
         buffer_.reset();
     }
-
 private:
     void staticCheck();
 
@@ -155,7 +136,6 @@ private:
 
     Buffer buffer_;
     static const int kMaxNumericSize = 32;
-
     template<typename T>
     void formatInteger(T v);
 };
