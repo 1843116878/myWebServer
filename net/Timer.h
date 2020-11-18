@@ -1,54 +1,54 @@
+// Created by yuanzhihong
 //
-// Created by yuanzhihong on 2020/10/31.
-//
+#ifndef MYWEBSERVER_UTIL_H_
+#define MYWEBSERVER_UTIL_H_
 
-#ifndef MYWEBSERVER_TIMER_H
-#define MYWEBSERVER_TIMER_H
-
+#include <unistd.h>
 #include <deque>
 #include <memory>
 #include <queue>
+#include <mutex>
 #include "HttpData.h"
+
 class HttpData;
 
-class TimerNode{
+class TimerNode {
 public:
+    TimerNode(TimerNode &tn);
     TimerNode(std::shared_ptr<HttpData> requestData, int timeout);
     ~TimerNode();
-    TimerNode(TimerNode &tn);
+
     void update(int timeout);
-    bool isValid();
     void clearReq();
+
+    size_t getExpTime() const;
+
     void setDeleted();
     bool isDeleted() const;
-    size_t getExpTime()const;
+    bool isValid();
 
 private:
-    bool deleted_;
-    size_t expiredTime_;
     std::shared_ptr<HttpData> SPHttpData;
+    size_t expiredTime_;
+    bool deleted_;
 };
 
-struct TimerCmp{
-    bool operator()(std::shared_ptr<TimerNode> &a,
-            std::shared_ptr<TimerNode> &b)const{
+struct TimerCmp {
+    bool operator()(std::shared_ptr<TimerNode> &a, std::shared_ptr<TimerNode> &b) const {
         return a->getExpTime() > b->getExpTime();
     }
 };
 
-class TimerManager{
+class TimerManager {
 public:
     TimerManager();
     ~TimerManager();
     void addTimer(std::shared_ptr<HttpData> SPHttpData, int timeout);
     void handleExpiredEvent();
-
 private:
     using SPTimerNode = std::shared_ptr<TimerNode>;
-    std::priority_queue<SPTimerNode, std::deque<SPTimerNode>, TimerCmp>
-    timerNodeQueue;
+    std::priority_queue<SPTimerNode, std::deque<SPTimerNode>, TimerCmp> timerNodeQueue;
+    std::mutex mutex_;
 };
 
-
-
-#endif //MYWEBSERVER_TIMER_H
+#endif
