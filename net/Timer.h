@@ -1,7 +1,7 @@
 // Created by yuanzhihong
 //
-#ifndef MYWEBSERVER_UTIL_H_
-#define MYWEBSERVER_UTIL_H_
+#ifndef MYWEBSERVER_TIMER_H_
+#define MYWEBSERVER_TIMER_H_
 
 #include <unistd.h>
 #include <deque>
