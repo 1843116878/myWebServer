@@ -5,7 +5,16 @@
 本项目基于[muduo](https://github.com/chenshuo/muduo.git) 和 [linyacool](https://github.com/linyacool/WebServer.git)
 
 不过改用了c++11的多线程库而不是直接使用的Posix线程。而且在可读性上做了较大的改善
+***
+安装方式
+```
+cmake ./
+make
+cd net
+./myWebServer [-t threadNum] [-p port]
 
+默认端口号就是8888
+```
 ***
 
 先介绍一下各个文件的功能
